@@ -7,16 +7,12 @@ from sqlalchemy.pool import StaticPool
 from corvus.config.database import Base, get_db
 from corvus.main import app
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
+SQLALCHEMY_DATABASE_URL = "postgresql://corvus:corvus@localhost:5432/corvus"
 
 
 @pytest.fixture(autouse=True)
 def test_db():
-    engine = create_engine(
-        SQLALCHEMY_DATABASE_URL,
-        connect_args={"check_same_thread": False},
-        poolclass=StaticPool,
-    )
+    engine = create_engine(SQLALCHEMY_DATABASE_URL)
     TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     Base.metadata.create_all(bind=engine)
 

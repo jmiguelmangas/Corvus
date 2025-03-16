@@ -1,4 +1,3 @@
-import json
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -27,7 +26,10 @@ async def list_connectors(db: Session = Depends(get_db)):
 
 
 @router.post("/", response_model=ConnectorResponse)
-async def create_connector(connector: ConnectorCreate, db: Session = Depends(get_db)):
+async def create_connector(
+    connector: ConnectorCreate,
+    db: Session = Depends(get_db),
+):
     """Crear un nuevo conector."""
     db_connector = Connector(**connector.model_dump())
     db.add(db_connector)
@@ -37,7 +39,10 @@ async def create_connector(connector: ConnectorCreate, db: Session = Depends(get
 
 
 @router.get("/{connector_id}", response_model=ConnectorResponse)
-async def get_connector(connector_id: int, db: Session = Depends(get_db)):
+async def get_connector(
+    connector_id: int,
+    db: Session = Depends(get_db),
+):
     """Obtener detalles de un conector específico."""
     connector = db.query(Connector).filter(Connector.id == connector_id).first()
     if not connector:
@@ -47,7 +52,9 @@ async def get_connector(connector_id: int, db: Session = Depends(get_db)):
 
 @router.put("/{connector_id}", response_model=ConnectorResponse)
 async def update_connector(
-    connector_id: int, connector: ConnectorUpdate, db: Session = Depends(get_db)
+    connector_id: int,
+    connector: ConnectorUpdate,
+    db: Session = Depends(get_db),
 ):
     """Actualizar un conector existente."""
     db_connector = db.query(Connector).filter(Connector.id == connector_id).first()
@@ -84,7 +91,14 @@ async def test_connector(connector_id: int, db: Session = Depends(get_db)):
     try:
         config = connector.config
         if connector.type == ConnectorType.POSTGRESQL:
-            connection_string = f"postgresql://{config.get('user')}:{config.get('password')}@{config.get('host')}:{config.get('port')}/{config.get('database')}"
+            user = config.get("user")
+            password = config.get("password")
+            host = config.get("host")
+            port = config.get("port")
+            database = config.get("database")
+            connection_string = (
+                f"postgresql://{user}:{password}@{host}:{port}/{database}"
+            )
             engine = create_engine(connection_string)
             with engine.connect() as connection:
                 connection.execute(text("SELECT 1"))

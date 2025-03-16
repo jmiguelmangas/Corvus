@@ -21,9 +21,9 @@ def test_create_connector(client):
             "config": {
                 "host": "localhost",
                 "port": 5432,
-                "database": "test_db",
-                "user": "test_user",
-                "password": "test_password",
+                "database": "corvus",
+                "user": "corvus",
+                "password": "corvus",
             },
         },
     )
@@ -31,7 +31,7 @@ def test_create_connector(client):
     data = response.json()
     assert "Test Connector Create" in data["name"]
     assert data["type"] == "postgresql"
-    assert data["status"] == "configuring"
+    assert data["status"] == ConnectorStatus.CONFIGURING
     assert "id" in data
 
 
@@ -45,9 +45,9 @@ def test_list_connectors(client):
             "config": {
                 "host": "localhost",
                 "port": 5432,
-                "database": "test_db",
-                "user": "test_user",
-                "password": "test_password",
+                "database": "corvus",
+                "user": "corvus",
+                "password": "corvus",
             },
         },
     )
@@ -73,9 +73,9 @@ def test_test_connector(client):
             "config": {
                 "host": "localhost",
                 "port": 5432,
-                "database": "test_db",
-                "user": "test_user",
-                "password": "test_password",
+                "database": "corvus",
+                "user": "corvus",
+                "password": "corvus",
             },
         },
     )
@@ -92,4 +92,4 @@ def test_test_connector(client):
     get_response = client.get(f"/api/connectors/{connector_id}")
     assert get_response.status_code == 200
     connector = get_response.json()
-    assert connector["status"] in ["connected", "error", "configuring"]
+    assert connector["status"] in [ConnectorStatus.ACTIVE, ConnectorStatus.ERROR, ConnectorStatus.CONFIGURING]

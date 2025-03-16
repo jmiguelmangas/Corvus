@@ -9,7 +9,7 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Corvus API",
-    description="API para la plataforma de gestión y análisis de datos Corvus",
+    description=("API para la plataforma de gestión " "y análisis de datos Corvus"),
     version="0.1.0",
 )
 
