@@ -118,8 +118,9 @@ export const ConnectorForm = ({
                 try {
                   const config = JSON.parse(e.target.value);
                   setFormData((prev) => ({ ...prev, config }));
-                } catch (error) {
-                  // Ignorar errores de parsing mientras el usuario escribe
+                } catch (_) {
+                  // Usar _ para indicar explícitamente que ignoramos el error
+                  // Los errores de parsing son esperados mientras el usuario escribe
                 }
               }}
             />
