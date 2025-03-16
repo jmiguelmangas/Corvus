@@ -91,5 +91,9 @@ def test_test_connector(client):
     get_response = client.get(f"/api/connectors/{connector_id}")
     assert get_response.status_code == 200
     connector = get_response.json()
-    valid_statuses = [ConnectorStatus.ACTIVE, ConnectorStatus.ERROR, ConnectorStatus.CONFIGURING]
+    valid_statuses = [
+        ConnectorStatus.ACTIVE,
+        ConnectorStatus.ERROR,
+        ConnectorStatus.CONFIGURING,
+    ]
     assert connector["status"] in valid_statuses
