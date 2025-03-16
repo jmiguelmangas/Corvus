@@ -15,7 +15,7 @@ jobs:
         env:
           POSTGRES_USER: corvus
           POSTGRES_PASSWORD: corvus
-          POSTGRES_DB: corvus_test
+          POSTGRES_DB: corvus
         ports:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
@@ -25,13 +25,13 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
+        python-version: '3.13'
     - name: Install dependencies
       run: |
         cd backend
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pytest pytest-cov black flake8
+        pip install pytest pytest-cov black flake8 alembic psycopg2-binary
     - name: Run black
       run: |
         cd backend
