@@ -1,9 +1,6 @@
 from uuid import uuid4
 
-import pytest
-from fastapi.testclient import TestClient
-
-from corvus.models.connector import ConnectorStatus, ConnectorType
+from corvus.models.connector import ConnectorStatus
 
 
 # Helper para generar IDs únicos
@@ -85,11 +82,14 @@ def test_test_connector(client):
     connector_id = data["id"]
 
     # Intentar probar la conexión
-    response = client.post(f"/api/connectors/{connector_id}/test")
-    assert response.status_code in [200, 400]  # Puede fallar si no hay BD disponible
+    test_endpoint = f"/api/connectors/{connector_id}/test"
+    response = client.post(test_endpoint)
+    # La conexión puede fallar si no hay BD disponible
+    assert response.status_code in [200, 400]
 
     # Verificar que el estado del conector se actualiza
     get_response = client.get(f"/api/connectors/{connector_id}")
     assert get_response.status_code == 200
     connector = get_response.json()
-    assert connector["status"] in [ConnectorStatus.ACTIVE, ConnectorStatus.ERROR, ConnectorStatus.CONFIGURING]
+    valid_statuses = [ConnectorStatus.ACTIVE, ConnectorStatus.ERROR, ConnectorStatus.CONFIGURING]
+    assert connector["status"] in valid_statuses

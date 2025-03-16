@@ -4,7 +4,8 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 
 from corvus.config.database import Base
-from corvus.models import connector
+# Necesario importar los modelos para que Alembic los detecte
+from corvus.models import connector  # noqa: F401
 
 # this is the Alembic Config object
 config = context.config
