@@ -56,7 +56,11 @@ def test_list_connectors(client):
     assert isinstance(data, list)
     assert len(data) > 0
     # Verificar que al menos uno de los conectores tiene el nombre esperado
-    assert any("Test Connector List" in connector["name"] for connector in data)
+    # Verificar que existe un conector con el nombre esperado
+    found = any(
+        "Test Connector List" in connector["name"] for connector in data
+    )
+    assert found
     assert data[0]["type"] == "postgresql"
 
 
