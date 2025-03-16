@@ -96,10 +96,8 @@ async def test_connector(connector_id: int, db: Session = Depends(get_db)):
             host = config.get("host")
             port = config.get("port")
             database = config.get("database")
-            connection_string = (
-                f"postgresql://{user}:{password}@{host}:{port}/{database}"
-            )
-            engine = create_engine(connection_string)
+            conn_str = f"postgresql://{user}:{password}@{host}:{port}/{database}"
+            engine = create_engine(conn_str)
             with engine.connect() as connection:
                 connection.execute(text("SELECT 1"))
 
