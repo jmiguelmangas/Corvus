@@ -1,13 +1,16 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from typing import List
-from sqlalchemy import create_engine, text
-from ...models.connector import Connector, ConnectorType, ConnectorStatus
-from ...schemas.connector import ConnectorCreate, ConnectorResponse, ConnectorUpdate
-from ...config.database import SessionLocal
 import json
+from typing import List
+
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import Session
+
+from ...config.database import SessionLocal
+from ...models.connector import Connector, ConnectorStatus, ConnectorType
+from ...schemas.connector import ConnectorCreate, ConnectorResponse, ConnectorUpdate
 
 router = APIRouter()
+
 
 def get_db():
     db = SessionLocal()
@@ -16,19 +19,22 @@ def get_db():
     finally:
         db.close()
 
+
 @router.get("/", response_model=List[ConnectorResponse])
 async def list_connectors(db: Session = Depends(get_db)):
     """Obtener lista de todos los conectores."""
     return db.query(Connector).all()
 
+
 @router.post("/", response_model=ConnectorResponse)
 async def create_connector(connector: ConnectorCreate, db: Session = Depends(get_db)):
     """Crear un nuevo conector."""
-    db_connector = Connector(**connector.dict())
+    db_connector = Connector(**connector.model_dump())
     db.add(db_connector)
     db.commit()
     db.refresh(db_connector)
     return db_connector
+
 
 @router.get("/{connector_id}", response_model=ConnectorResponse)
 async def get_connector(connector_id: int, db: Session = Depends(get_db)):
@@ -38,6 +44,7 @@ async def get_connector(connector_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Conector no encontrado")
     return connector
 
+
 @router.put("/{connector_id}", response_model=ConnectorResponse)
 async def update_connector(
     connector_id: int, connector: ConnectorUpdate, db: Session = Depends(get_db)
@@ -46,13 +53,14 @@ async def update_connector(
     db_connector = db.query(Connector).filter(Connector.id == connector_id).first()
     if not db_connector:
         raise HTTPException(status_code=404, detail="Conector no encontrado")
-    
+
     for field, value in connector.dict(exclude_unset=True).items():
         setattr(db_connector, field, value)
-    
+
     db.commit()
     db.refresh(db_connector)
     return db_connector
+
 
 @router.delete("/{connector_id}")
 async def delete_connector(connector_id: int, db: Session = Depends(get_db)):
@@ -60,10 +68,11 @@ async def delete_connector(connector_id: int, db: Session = Depends(get_db)):
     connector = db.query(Connector).filter(Connector.id == connector_id).first()
     if not connector:
         raise HTTPException(status_code=404, detail="Conector no encontrado")
-    
+
     db.delete(connector)
     db.commit()
     return {"message": "Conector eliminado"}
+
 
 @router.post("/{connector_id}/test")
 async def test_connector(connector_id: int, db: Session = Depends(get_db)):
@@ -71,7 +80,7 @@ async def test_connector(connector_id: int, db: Session = Depends(get_db)):
     connector = db.query(Connector).filter(Connector.id == connector_id).first()
     if not connector:
         raise HTTPException(status_code=404, detail="Conector no encontrado")
-    
+
     try:
         config = connector.config
         if connector.type == ConnectorType.POSTGRESQL:
@@ -79,7 +88,7 @@ async def test_connector(connector_id: int, db: Session = Depends(get_db)):
             engine = create_engine(connection_string)
             with engine.connect() as connection:
                 connection.execute(text("SELECT 1"))
-            
+
             # Actualizar estado a activo
             connector.status = ConnectorStatus.ACTIVE
             db.commit()

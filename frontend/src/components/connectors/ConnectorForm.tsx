@@ -37,7 +37,11 @@ export const ConnectorForm = ({
     try {
       await onSubmit(formData);
     } catch (error) {
-      console.error('Error submitting form:', error);
+      if (error instanceof Error) {
+        console.error('Error submitting form:', error.message);
+      } else {
+        console.error('Error submitting form:', error);
+      }
     }
   };
 

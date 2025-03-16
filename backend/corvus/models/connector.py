@@ -1,10 +1,14 @@
+import enum
 from datetime import datetime
 from typing import Optional
-from sqlalchemy import Column, Integer, String, DateTime, JSON, ForeignKey, Enum as SQLEnum
+
+from sqlalchemy import JSON, Column, DateTime
+from sqlalchemy import Enum as SQLEnum
+from sqlalchemy import ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
-import enum
 
 from ..config.database import Base
+
 
 class ConnectorType(str, enum.Enum):
     POSTGRESQL = "postgresql"
@@ -13,14 +17,17 @@ class ConnectorType(str, enum.Enum):
     ELASTICSEARCH = "elasticsearch"
     REST_API = "rest_api"
 
+
 class ConnectorStatus(str, enum.Enum):
     ACTIVE = "active"
     INACTIVE = "inactive"
     ERROR = "error"
     CONFIGURING = "configuring"
 
+
 class Connector(Base):
     """Modelo para los conectores de fuentes de datos."""
+
     __tablename__ = "connectors"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -35,8 +42,10 @@ class Connector(Base):
     # Relaciones
     data_sources = relationship("DataSource", back_populates="connector")
 
+
 class DataSource(Base):
     """Modelo para las fuentes de datos específicas dentro de un conector."""
+
     __tablename__ = "data_sources"
 
     id = Column(Integer, primary_key=True, index=True)

@@ -1,16 +1,16 @@
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from corvus.config.database import Base
+from corvus.config.database import Base, get_db
 from corvus.main import app
-from corvus.config.database import get_db
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
 
-@pytest.fixture
+
+@pytest.fixture(autouse=True)
 def test_db():
     engine = create_engine(
         SQLALCHEMY_DATABASE_URL,
@@ -28,9 +28,14 @@ def test_db():
             db.close()
 
     app.dependency_overrides[get_db] = override_get_db
-    yield TestingSessionLocal()
+    db = TestingSessionLocal()
+    yield db
+    db.close()
     Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
 
 @pytest.fixture
 def client(test_db):
-    return TestClient(app)
+    with TestClient(app) as client:
+        yield client

@@ -77,9 +77,13 @@ export const ConnectorsList = () => {
         await loadConnectors();
         setError(null);
       }
-    } catch (error: any) {
+    } catch (error) {
+      if (error instanceof Error) {
       console.error('Error testing connection:', error);
-      setError(error.response?.data?.detail || 'Error al probar la conexión');
+        setError('Error al probar la conexión: ' + error.message);
+      } else {
+        setError('Error al probar la conexión');
+      }
     }
   };
 
@@ -150,7 +154,7 @@ export const ConnectorsList = () => {
                 <TableCell>
                   <Chip
                     label={connector.status}
-                    color={statusColors[connector.status] as any}
+                    color={statusColors[connector.status] as 'success' | 'default' | 'error' | 'warning'}
                     size="small"
                   />
                 </TableCell>
@@ -192,7 +196,7 @@ export const ConnectorsList = () => {
         component="div"
         count={connectors.length}
         page={page}
-        onPageChange={(event, newPage) => setPage(newPage)}
+        onPageChange={(_, newPage) => setPage(newPage)}
         rowsPerPage={rowsPerPage}
         onRowsPerPageChange={(event) => {
           setRowsPerPage(parseInt(event.target.value, 10));
