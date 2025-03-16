@@ -31,7 +31,7 @@ async def create_connector(
     db: Session = Depends(get_db),
 ):
     """Crear un nuevo conector."""
-    db_connector = Connector(**connector.model_dump())
+    db_connector = Connector(**connector.dict())
     db.add(db_connector)
     db.commit()
     db.refresh(db_connector)

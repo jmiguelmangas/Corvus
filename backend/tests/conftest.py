@@ -42,5 +42,5 @@ def test_db():
 
 @pytest.fixture
 def client(test_db):
-    with TestClient(app) as client:
-        yield client
+    client = TestClient(app)
+    yield client

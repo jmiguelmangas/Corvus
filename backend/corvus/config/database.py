@@ -1,5 +1,4 @@
-from pydantic import ConfigDict
-from pydantic_settings import BaseSettings
+from pydantic import BaseSettings
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
@@ -10,7 +9,8 @@ class Settings(BaseSettings):
     neo4j_user: str = "neo4j"
     neo4j_password: str = "corvuspass"
 
-    model_config = ConfigDict(env_file=".env")
+    class Config:
+        env_file = ".env"
 
 
 settings = Settings()

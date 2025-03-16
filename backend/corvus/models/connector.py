@@ -1,5 +1,5 @@
 import enum
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import JSON, Column, DateTime
 from sqlalchemy import Enum as SQLEnum
@@ -38,11 +38,11 @@ class Connector(Base):
         SQLEnum(ConnectorStatus),
         default=ConnectorStatus.CONFIGURING,
     )
-    created_at = Column(DateTime, default=lambda: datetime.now(UTC))
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(
         DateTime,
-        default=lambda: datetime.now(UTC),
-        onupdate=lambda: datetime.now(UTC),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
     )
 
     # Relaciones
@@ -59,11 +59,11 @@ class DataSource(Base):
     connector_id = Column(Integer, ForeignKey("connectors.id"))
     schema = Column(JSON)  # Esquema de la fuente de datos
     source_metadata = Column(JSON)  # Metadatos adicionales
-    created_at = Column(DateTime, default=lambda: datetime.now(UTC))
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(
         DateTime,
-        default=lambda: datetime.now(UTC),
-        onupdate=lambda: datetime.now(UTC),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
     )
 
     # Relaciones
