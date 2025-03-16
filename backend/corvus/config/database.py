@@ -1,8 +1,7 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
-
 from pydantic import ConfigDict
 from pydantic_settings import BaseSettings
+from sqlalchemy import create_engine
+from sqlalchemy.orm import declarative_base, sessionmaker
 
 
 class Settings(BaseSettings):
