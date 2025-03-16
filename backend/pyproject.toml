@@ -38,3 +38,14 @@ include = '\.pyi?$'
 [tool.isort]
 profile = "black"
 multi_line_output = 3
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = ['E203', 'W503']
+per-file-ignores = ['__init__.py:F401']
+
+[tool.pytest.ini_options]
+testpaths = ['tests']
+python_files = ['test_*.py']
+addopts = '--cov=corvus --cov-report=xml'
+pythonpath = ['.']

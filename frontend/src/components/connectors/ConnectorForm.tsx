@@ -37,7 +37,11 @@ export const ConnectorForm = ({
     try {
       await onSubmit(formData);
     } catch (error) {
-      console.error('Error submitting form:', error);
+      if (error instanceof Error) {
+        console.error('Error submitting form:', error.message);
+      } else {
+        console.error('Error submitting form:', error);
+      }
     }
   };
 
@@ -114,8 +118,9 @@ export const ConnectorForm = ({
                 try {
                   const config = JSON.parse(e.target.value);
                   setFormData((prev) => ({ ...prev, config }));
-                } catch (error) {
-                  // Ignorar errores de parsing mientras el usuario escribe
+                } catch {
+                  // Los errores de parsing son esperados mientras el usuario escribe
+                  // No necesitamos manejar el error específicamente
                 }
               }}
             />

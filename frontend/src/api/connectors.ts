@@ -1,13 +1,14 @@
 import axios from 'axios';
+import { config } from '../config/env';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001';
+const API_URL = config.API_URL;
 
 export interface Connector {
   id: number;
   name: string;
   description?: string;
   type: 'postgresql' | 'mysql' | 'mongodb' | 'elasticsearch' | 'rest_api';
-  config: Record<string, any>;
+  config: Record<string, unknown>;
   status: 'active' | 'inactive' | 'error' | 'configuring';
   created_at: string;
   updated_at: string;
@@ -17,7 +18,7 @@ export interface ConnectorCreate {
   name: string;
   description?: string;
   type: Connector['type'];
-  config: Record<string, any>;
+  config: Record<string, unknown>;
 }
 
 export const connectorsApi = {

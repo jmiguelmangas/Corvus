@@ -1,7 +1,10 @@
-from pydantic import BaseModel
-from typing import Optional, Dict, Any
 from datetime import datetime
-from ..models.connector import ConnectorType, ConnectorStatus
+from typing import Any, Dict, Optional
+
+from pydantic import BaseModel
+
+from ..models.connector import ConnectorStatus, ConnectorType
+
 
 class ConnectorBase(BaseModel):
     name: str
@@ -9,14 +12,17 @@ class ConnectorBase(BaseModel):
     type: ConnectorType
     config: Dict[str, Any]
 
+
 class ConnectorCreate(ConnectorBase):
     pass
+
 
 class ConnectorUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     config: Optional[Dict[str, Any]] = None
     status: Optional[ConnectorStatus] = None
+
 
 class ConnectorResponse(ConnectorBase):
     id: int
@@ -25,4 +31,4 @@ class ConnectorResponse(ConnectorBase):
     updated_at: datetime
 
     class Config:
-        from_attributes = True
+        orm_mode = True
