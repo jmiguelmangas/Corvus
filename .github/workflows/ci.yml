@@ -1,0 +1,92 @@
+name: Corvus CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  backend-tests:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: corvus
+          POSTGRES_PASSWORD: corvus
+          POSTGRES_DB: corvus_test
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    - name: Install dependencies
+      run: |
+        cd backend
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov black flake8
+    - name: Run black
+      run: |
+        cd backend
+        black . --check
+    - name: Run flake8
+      run: |
+        cd backend
+        flake8 . --max-line-length=88 --extend-ignore=E203
+    - name: Run tests
+      run: |
+        cd backend
+        pytest --cov=corvus --cov-report=xml
+    - name: Upload coverage
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./backend/coverage.xml
+
+  frontend-tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    - name: Install dependencies
+      run: |
+        cd frontend
+        npm ci
+    - name: Run ESLint
+      run: |
+        cd frontend
+        npm run lint
+    - name: Run tests
+      run: |
+        cd frontend
+        npm test -- --coverage
+    - name: Upload coverage
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./frontend/coverage/lcov.info
+
+  build-and-push:
+    needs: [backend-tests, frontend-tests]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    - name: Build backend
+      run: |
+        cd backend
+        docker build -t corvus-backend -f docker/Dockerfile .
+    - name: Build frontend
+      run: |
+        cd frontend
+        docker build -t corvus-frontend -f docker/Dockerfile .
