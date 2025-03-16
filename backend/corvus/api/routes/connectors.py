@@ -57,9 +57,7 @@ async def update_connector(
     db: Session = Depends(get_db),
 ):
     """Actualizar un conector existente."""
-    db_connector = (db.query(Connector)
-                      .filter(Connector.id == connector_id)
-                      .first())
+    db_connector = db.query(Connector).filter(Connector.id == connector_id).first()
     if not db_connector:
         raise HTTPException(status_code=404, detail="Conector no encontrado")
 
@@ -98,9 +96,7 @@ async def test_connector(connector_id: int, db: Session = Depends(get_db)):
             host = config.get("host")
             port = config.get("port")
             database = config.get("database")
-            conn_str = (
-                f"postgresql://{user}:{password}@{host}:{port}/{database}"
-            )
+            conn_str = f"postgresql://{user}:{password}@{host}:{port}/{database}"
             engine = create_engine(conn_str)
             with engine.connect() as connection:
                 connection.execute(text("SELECT 1"))
@@ -114,7 +110,4 @@ async def test_connector(connector_id: int, db: Session = Depends(get_db)):
         # Si hay error, mantener estado en configuring
         connector.status = ConnectorStatus.CONFIGURING
         db.commit()
-        raise HTTPException(
-            status_code=400,
-            detail=f"Error de conexión: {str(e)}"
-        )
+        raise HTTPException(status_code=400, detail=f"Error de conexión: {str(e)}")
