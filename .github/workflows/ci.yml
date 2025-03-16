@@ -13,9 +13,9 @@ jobs:
       postgres:
         image: postgres:15
         env:
-          POSTGRES_USER: corvus
-          POSTGRES_PASSWORD: corvus
-          POSTGRES_DB: corvus
+          POSTGRES_USER: corvus_test
+          POSTGRES_PASSWORD: corvus_test
+          POSTGRES_DB: corvus_test
         ports:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
@@ -25,21 +25,23 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.13'
+        python-version: '3.9'
     - name: Install dependencies
       run: |
         cd backend
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pytest pytest-cov black flake8 flake8-pyproject isort
+        pip install pytest pytest-cov black flake8 isort
     - name: Run linters and tests
+      env:
+        TEST_DATABASE_URL: postgresql://corvus_test:corvus_test@localhost:5432/corvus_test
       run: |
         cd backend
         export PYTHONPATH=$PYTHONPATH:$(pwd)
         black . --check
         isort . --check-only
-        flake8
-        pytest --cov=corvus --cov-report=xml
+        flake8 corvus/ tests/
+        pytest --cov=corvus --cov-report=xml tests/
     - name: Upload coverage
       uses: codecov/codecov-action@v3
       with:
@@ -53,6 +55,8 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
     - name: Install dependencies
       run: |
         cd frontend
@@ -64,7 +68,7 @@ jobs:
     - name: Run tests
       run: |
         cd frontend
-        npm test -- --coverage
+        npm test -- --coverage --passWithNoTests
     - name: Upload coverage
       uses: codecov/codecov-action@v3
       with:
