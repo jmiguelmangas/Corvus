@@ -1,0 +1,91 @@
+name: Corvus CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: corvus
+          POSTGRES_PASSWORD: corvus
+          POSTGRES_DB: corvus
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.13'
+
+    - name: Install Python dependencies
+      working-directory: ./backend
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run Backend Tests
+      working-directory: ./backend
+      env:
+        DATABASE_URL: postgresql://corvus:corvus@localhost:5432/corvus
+      run: |
+        pytest --cov=corvus tests/
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+
+    - name: Install Frontend dependencies
+      working-directory: ./frontend
+      run: npm ci
+
+    - name: Run Frontend Tests
+      working-directory: ./frontend
+      run: npm test
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.13'
+
+    - name: Install Python linting dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 black isort
+
+    - name: Run Python linters
+      run: |
+        black --check backend/
+        isort --check-only backend/
+        flake8 backend/
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+
+    - name: Install Frontend linting dependencies
+      working-directory: ./frontend
+      run: npm ci
+
+    - name: Run Frontend linters
+      working-directory: ./frontend
+      run: |
+        npm run lint
+        npm run type-check
