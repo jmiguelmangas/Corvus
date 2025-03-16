@@ -26,24 +26,19 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: '3.13'
+    - name: Install Poetry
+      run: |
+        curl -sSL https://install.python-poetry.org | python3 -
     - name: Install dependencies
       run: |
         cd backend
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install pytest pytest-cov black flake8 alembic psycopg2-binary
-    - name: Run black
+        poetry install
+    - name: Run linters and tests
       run: |
         cd backend
-        black . --check
-    - name: Run flake8
-      run: |
-        cd backend
-        flake8 . --max-line-length=88 --extend-ignore=E203
-    - name: Run tests
-      run: |
-        cd backend
-        pytest --cov=corvus --cov-report=xml
+        poetry run black . --check
+        poetry run flake8 .
+        PYTHONPATH=$PYTHONPATH:$(pwd) poetry run pytest --cov=corvus --cov-report=xml
     - name: Upload coverage
       uses: codecov/codecov-action@v3
       with:
