@@ -67,8 +67,8 @@ docker-compose up -d
 
 5. Acceder a la aplicación:
 - Frontend: http://localhost:3000
-- API Backend: http://localhost:8000
-- Documentación API: http://localhost:8000/docs
+- API Backend: http://localhost:8001
+- Documentación API: http://localhost:8001/docs
 
 ## Desarrollo
 
@@ -78,29 +78,77 @@ docker-compose up -d
 - Frontend: Seguimos las guías de estilo de ESLint y Prettier
 - Commits: Seguimos la convención de Conventional Commits
 
-### Flujo de Trabajo Git
+### Flujo de Trabajo Git y CI/CD
 
 1. Crear una rama desde `main` para cada feature/fix
 2. Nombrar las ramas siguiendo el patrón:
-   - `feature/nombre-feature`
+   - `feat/nombre-feature`
    - `fix/nombre-fix`
    - `docs/nombre-documentacion`
-3. Crear Pull Request para revisión
-4. Merge a `main` después de aprobación
+   - `ci/nombre-cambio`
+   - `refactor/nombre-refactor`
 
-## Testing
+3. Commits deben seguir el formato Conventional Commits:
+   ```
+   <tipo>: <descripción>
+
+   [cuerpo opcional]
+
+   [pie opcional]
+   ```
+   Tipos permitidos: build, chore, ci, docs, feat, fix, perf, refactor, revert, style, test
+
+4. Crear Pull Request para revisión
+   - Requiere al menos 1 aprobación
+   - Todos los hilos de discusión deben estar resueltos
+   - Los tests y el linting deben pasar
+
+5. Merge a `main` después de aprobación
+   - Se permiten merge, squash y rebase
+   - La rama debe estar actualizada con main
+   - No se permiten push forzados ni eliminación de la rama main
+
+## Testing y CI/CD
 
 ### Backend
 ```bash
 cd backend
-pytest
+# Ejecutar tests con cobertura
+pytest --cov=corvus tests/
+
+# Ejecutar linting
+black .
+isort .
+flake8 .
 ```
 
 ### Frontend
 ```bash
 cd frontend
+# Ejecutar tests
 npm test
+
+# Ejecutar tests con watch mode
+npm run test:watch
+
+# Verificar tipos de TypeScript
+npm run type-check
+
+# Ejecutar linting
+npm run lint
+
+# Corregir problemas de linting automáticamente
+npm run lint:fix
 ```
+
+### Integración Continua
+Cada pull request activa automáticamente:
+1. Ejecución de tests de backend y frontend
+2. Verificación de tipos TypeScript
+3. Linting de código Python y TypeScript
+4. Verificación del formato de commits
+
+Todos estos checks deben pasar antes de que se pueda hacer merge a main.
 
 ## Documentación
 
